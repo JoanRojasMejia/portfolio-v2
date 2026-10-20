@@ -1,0 +1,147 @@
+:root {
+  --sans: "Bricolage Grotesque", system-ui, sans-serif;
+  --serif: "Instrument Serif", serif;
+  --mono: "Geist Mono", monospace;
+  --hand: Caveat, cursive;
+  --bg: #F3F2EE;
+  --fg: #111111;
+  --muted: #6E6D68;
+  --rule: #D9D7D0;
+  --card: #FBFAF7;
+  --stripe: rgba(17, 17, 17, .07);
+  --blend: multiply;
+  --g66-mark: rgba(39, 70, 199, .22); /* resaltador con el azul de Global66 (#2746C7) */
+  --gutter: clamp(20px, 4vw, 48px);
+}
+:root[data-theme="dark"] {
+  --bg: #0E0E0D;
+  --fg: #EDEBE6;
+  --muted: #8C8B86;
+  --rule: #2B2B29;
+  --card: #161615;
+  --stripe: rgba(237, 235, 230, .06);
+  --blend: normal;
+  --g66-mark: rgba(39, 70, 199, .55);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  transition: background .3s, color .3s;
+}
+a { color: var(--fg); text-decoration: none; }
+a:hover { color: var(--muted); }
+button { font: inherit; }
+::selection { background: var(--fg); color: var(--bg); }
+
+@keyframes jrspin { to { transform: rotate(360deg); } }
+@keyframes jreq { 0%, 100% { transform: scaleY(.3); } 50% { transform: scaleY(1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* Shared layout pieces */
+.sheet {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 72px var(--gutter) 24px;
+  border-left: 1px solid var(--frame-edge, var(--rule));
+  border-right: 1px solid var(--frame-edge, var(--rule));
+}
+.mono { font-family: var(--mono); }
+.serif { font-family: var(--serif); font-weight: 400; }
+.diamond {
+  width: 8px; height: 8px;
+  border: 1px solid var(--fg);
+  transform: rotate(45deg);
+  display: block;
+  flex: none;
+}
+.lead-serif {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(28px, 3.4vw, 40px);
+  line-height: 1.1;
+}
+.striped {
+  background: repeating-linear-gradient(135deg, var(--stripe) 0 1px, transparent 1px 10px);
+  border: 1px solid var(--rule);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: var(--mono);
+  color: var(--muted);
+}
+.vinyl {
+  border-radius: 50%;
+  background: repeating-radial-gradient(circle, #1a1a19 0 2px, #2a2a28 2px 3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: jrspin 4s linear infinite;
+}
+.polaroid {
+  background: #FBFAF7;
+  padding: 8px 8px 0;
+}
+.polaroid figcaption, .polaroid .caption {
+  font-family: var(--hand);
+  font-size: 22px;
+  color: #222;
+  padding: 6px 4px 8px;
+  text-align: center;
+}
+
+/* Marco como plano arquitectónico: FrameDecor.vue dibuja los bordes de la
+   columna como ejes, así que los bordes propios de .sheet y del hero se ocultan. */
+:root { --frame-edge: transparent; }
+
+/* Los títulos de sección usan línea de cota, con marcas a 45° en los extremos. */
+.sheet-label .line { position: relative; }
+.sheet-label .line::before,
+.sheet-label .line::after {
+  content: '';
+  position: absolute;
+  top: -5px;
+  width: 1px;
+  height: 11px;
+  background: var(--muted);
+  transform: rotate(45deg);
+}
+.sheet-label .line::before { left: 0; }
+.sheet-label .line::after { right: 0; }
+
+/* Saludo de la mascota (Logo.vue) al pasar el mouse sobre un .jr-waves, por
+   fotogramas como un sprite de pixel art: el brazo sube en arco (diagonal →
+   arriba) y se mece en bucle (arriba → afuera → arriba → mano abierta), ~0,15 s
+   por pose. Lo usan el logo del header y el Playground. */
+.jr-waves:hover .arm-rest,
+.jr-waves:focus-visible .arm-rest { opacity: 0; }
+.jr-waves:hover .pose-raise,
+.jr-waves:focus-visible .pose-raise { animation: jr-raise .18s steps(1, end) forwards; }
+.jr-waves:hover .pose-up,
+.jr-waves:focus-visible .pose-up { animation: jr-up-in .18s steps(1, end) forwards, jr-up .6s steps(1, end) .18s infinite; }
+.jr-waves:hover .pose-out,
+.jr-waves:focus-visible .pose-out { animation: jr-out .6s steps(1, end) .18s infinite; }
+.jr-waves:hover .pose-open,
+.jr-waves:focus-visible .pose-open { animation: jr-open .6s steps(1, end) .18s infinite; }
+/* Subida: diagonal la primera mitad, arriba la segunda */
+@keyframes jr-raise { 0% { opacity: 1; } 50%, 100% { opacity: 0; } }
+@keyframes jr-up-in { 0% { opacity: 0; } 50%, 100% { opacity: 1; } }
+/* Bucle de 4 fotogramas: arriba · afuera · arriba · mano abierta */
+@keyframes jr-up { 0% { opacity: 1; } 25% { opacity: 0; } 50% { opacity: 1; } 75%, 100% { opacity: 0; } }
+@keyframes jr-out { 0% { opacity: 0; } 25% { opacity: 1; } 50%, 100% { opacity: 0; } }
+@keyframes jr-open { 0%, 50% { opacity: 0; } 75%, 100% { opacity: 1; } }
+/* Sin animaciones: solo levanta el brazo */
+@media (prefers-reduced-motion: reduce) {
+  .jr-waves:hover .pose-up,
+  .jr-waves:focus-visible .pose-up { opacity: 1; }
+}

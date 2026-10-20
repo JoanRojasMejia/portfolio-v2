@@ -1,0 +1,16 @@
+node_modules
+dist
+.astro
+
+# Variables de entorno (API keys)
+.env
+.env.*
+!.env.example
+
+# Herramienta de fuente manuscrita
+tools/handwriting-font/.venv/
+tools/handwriting-font/out/
+
+# Sistema y herramientas locales
+.DS_Store
+.claude/

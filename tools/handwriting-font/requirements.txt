@@ -1,0 +1,6 @@
+pillow>=10.1
+numpy
+opencv-python-headless
+fonttools[woff]
+potracer
+skia-pathops

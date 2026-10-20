@@ -1,0 +1,19 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import CasePage from '../../components/CasePage.vue';
+import { PROJECTS } from '../../lib/data';
+import { L } from '../../lib/i18n';
+import { findPreview } from '../../lib/itunes';
+
+export function getStaticPaths() {
+  return PROJECTS.map(p => ({ params: { id: p.id }, props: { project: p } }));
+}
+
+const { project } = Astro.props;
+// La canción del proyecto (si tiene) con su preview de 30 s, buscada al compilar.
+const match = project.song ? await findPreview(project.song.artist, project.song.name) : null;
+const song = project.song ? { ...project.song, preview: match?.preview ?? null, artwork: match?.artwork ?? null } : null;
+---
+<Layout title={`${L(project.title, 'es')} — Joan Rojas`} description={L(project.desc, 'es')}>
+  <CasePage client:load id={project.id} song={song} />
+</Layout>

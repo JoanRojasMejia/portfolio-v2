@@ -1,0 +1,41 @@
+---
+import '../styles/global.css';
+import AsciiBackground from '../components/AsciiBackground.vue';
+import FrameDecor from '../components/FrameDecor.vue';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = 'Product Engineer en Global66. Diseño y construyo con Astro y Vue.' } = Astro.props;
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" href="/assets/logo.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Bricolage+Grotesque:opsz,wght@12..96,300..600&family=Geist+Mono:wght@400;500&family=Caveat:wght@500&display=swap"
+      rel="stylesheet"
+    />
+    <script is:inline>
+      try {
+        var th = localStorage.getItem('jr_theme');
+        document.documentElement.dataset.theme = th === 'dark' || th === 'light' ? th : 'light';
+      } catch (e) {
+        document.documentElement.dataset.theme = 'light';
+      }
+    </script>
+  </head>
+  <body>
+    <AsciiBackground client:idle />
+    <FrameDecor client:load />
+    <slot />
+  </body>
+</html>

@@ -1,0 +1,95 @@
+// Calendario de contribuciones del último año, como el de GitHub, sumando dos
+// fuentes por día:
+//   - GitHub: la API GraphQL (contributionCalendar), en build time con
+//     GITHUB_TOKEN (solo el scope read:user), así el token nunca llega al navegador.
+//   - Extra: conteos por día de repos que no están en GitHub (CodeCommit), que se
+//     exportan aparte a src/data/contributions-extra.json. Solo fechas y números.
+
+import extra from '../data/contributions-extra.json';
+
+export interface ContribDay {
+  date: string; // AAAA-MM-DD
+  gh: number;
+  extra: number;
+}
+
+export interface ContribCalendar {
+  weeks: ContribDay[][]; // columnas de domingo a sábado, la última es la semana actual
+  total: number;
+  ghTotal: number;
+  extraTotal: number;
+}
+
+const API = 'https://api.github.com/graphql';
+const TIMEOUT_MS = 8000;
+const WEEKS = 53;
+
+const QUERY = `query($login: String!) {
+  user(login: $login) {
+    contributionsCollection {
+      contributionCalendar {
+        weeks { contributionDays { date contributionCount } }
+      }
+    }
+  }
+}`;
+
+// Contribuciones por día en GitHub, o un mapa vacío si falta el token o falla la API.
+async function githubDays(): Promise<Record<string, number>> {
+  const token = import.meta.env.GITHUB_TOKEN;
+  const login = import.meta.env.GITHUB_USER;
+  if (!token || !login) {
+    console.warn('[github] Faltan GITHUB_TOKEN o GITHUB_USER; el calendario usa solo los datos extra.');
+    return {};
+  }
+  try {
+    const res = await fetch(API, {
+      method: 'POST',
+      headers: { Authorization: `bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: QUERY, variables: { login } }),
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (data.errors?.length) throw new Error(data.errors[0].message);
+    const weeks: { contributionDays: { date: string; contributionCount: number }[] }[] =
+      data.data?.user?.contributionsCollection?.contributionCalendar?.weeks ?? [];
+    const days: Record<string, number> = {};
+    for (const w of weeks) for (const d of w.contributionDays) days[d.date] = d.contributionCount;
+    return days;
+  } catch (err) {
+    console.warn(`[github] No se pudo leer el calendario: ${(err as Error).message}`);
+    return {};
+  }
+}
+
+// Fecha de hoy en Bogotá, como AAAA-MM-DD.
+const todayBogota = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota' }).format(new Date());
+
+const iso = (d: Date) => d.toISOString().slice(0, 10);
+
+export async function getContributions(): Promise<ContribCalendar | null> {
+  const gh = await githubDays();
+  const ex: Record<string, number> = (extra as { days?: Record<string, number> }).days ?? {};
+
+  // 53 semanas que terminan en la semana actual; cada columna empieza en domingo.
+  const end = new Date(`${todayBogota()}T00:00:00Z`);
+  const start = new Date(end);
+  start.setUTCDate(start.getUTCDate() - end.getUTCDay() - (WEEKS - 1) * 7);
+
+  const weeks: ContribDay[][] = [];
+  let ghTotal = 0;
+  let extraTotal = 0;
+  for (const d = new Date(start); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
+    if (d.getUTCDay() === 0) weeks.push([]);
+    const date = iso(d);
+    const day = { date, gh: gh[date] ?? 0, extra: ex[date] ?? 0 };
+    ghTotal += day.gh;
+    extraTotal += day.extra;
+    weeks[weeks.length - 1].push(day);
+  }
+
+  // Sin ninguna fuente no se muestra nada (mejor que un calendario vacío).
+  if (!ghTotal && !extraTotal) return null;
+  return { weeks, total: ghTotal + extraTotal, ghTotal, extraTotal };
+}
