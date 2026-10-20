@@ -1,26 +1,44 @@
 <template>
   <!-- Calendario de contribuciones: una columna por semana, el número del día en
        cada celda y la tinta más oscura cuantas más contribuciones. -->
-  <div class="contrib">
-    <div ref="scroller" class="scroller">
+  <div ref="root" class="contrib">
+    <div ref="scroller" class="scroller" @scroll="hide">
       <div class="graph" :style="{ '--weeks': cal.weeks.length }">
         <div class="months mono" aria-hidden="true">
           <span v-for="m in months" :key="m.col" :style="{ gridColumn: `${m.col + 1} / span 4`, gridRow: 1 }">{{ m.label }}</span>
         </div>
-        <div class="cells" role="img" :aria-label="summary">
+        <div class="cells" role="img" :aria-label="summary" @pointerover="show" @pointerleave="hide">
           <template v-for="(week, w) in cal.weeks" :key="w">
             <span
               v-for="(d, i) in week"
               :key="d.date"
               class="cell mono"
-              :class="`l${level(d)}`"
+              :class="[`l${level(d)}`, { hot: tip.on && tip.day?.date === d.date }]"
               :style="{ gridColumn: w + 1, gridRow: dayRow(w, i) }"
-              :title="tip(d)"
+              :data-w="w"
+              :data-i="i"
               aria-hidden="true"
             >{{ count(d) || '' }}</span>
           </template>
         </div>
       </div>
+    </div>
+    <!-- Un solo tooltip que se desliza de celda en celda: GitHub frente a AWS ese día. -->
+    <div
+      class="tip mono"
+      :class="{ on: tip.on }"
+      :style="{ left: `${tip.x}px`, top: `${tip.y}px`, '--arrow': `${tip.arrow}px` }"
+      aria-hidden="true"
+    >
+      <template v-if="tip.day">
+        <span class="tip-date">{{ when(tip.day) }}</span>
+        <span class="tip-row"><i class="dot gh"></i>{{ t.srcGithub }}<b>{{ tip.day.gh }}</b></span>
+        <span class="tip-row"><i class="dot aws"></i>{{ t.srcAws }}<b>{{ tip.day.extra }}</b></span>
+        <span class="tip-bar">
+          <span class="gh" :style="{ width: `${share(tip.day).gh}%` }"></span>
+          <span class="aws" :style="{ width: `${share(tip.day).aws}%` }"></span>
+        </span>
+      </template>
     </div>
     <div class="foot mono">
       <span class="total">{{ summary }}</span>
@@ -32,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import type { ContribCalendar, ContribDay } from '../lib/contributions';
 import { lang, t } from '../lib/site';
 
@@ -76,13 +94,37 @@ const months = computed(() => {
 });
 
 const word = (n: number) => (lang.value === 'es' ? (n === 1 ? 'contribución' : 'contribuciones') : n === 1 ? 'contribution' : 'contributions');
-const tip = (d: ContribDay) => {
-  const c = count(d);
-  const when = dateFmt.value.format(new Date(`${d.date}T00:00:00Z`));
-  const parts = d.extra && d.gh ? ` (${d.extra} Global66 · ${d.gh} GitHub)` : '';
-  return `${c || (lang.value === 'es' ? 'Sin' : 'No')} ${word(c)}${parts} · ${when}`;
-};
 const summary = computed(() => `${props.cal.total.toLocaleString(locale.value)} ${word(props.cal.total)} ${t.value.lastYear}`);
+
+// ---- Tooltip ----
+const TIP_W = 164; // ancho fijo del tooltip, para centrarlo sin medirlo
+const EDGE = 6; // margen mínimo contra los bordes del calendario
+const root = ref<HTMLElement | null>(null);
+// day se conserva al ocultar, así el contenido no desaparece antes del fundido.
+const tip = reactive<{ on: boolean; day: ContribDay | null; x: number; y: number; arrow: number }>({ on: false, day: null, x: 0, y: 0, arrow: 0 });
+
+const when = (d: ContribDay) => dateFmt.value.format(new Date(`${d.date}T00:00:00Z`));
+const share = (d: ContribDay) => {
+  const c = count(d);
+  return c ? { gh: (d.gh / c) * 100, aws: (d.extra / c) * 100 } : { gh: 0, aws: 0 };
+};
+
+const show = (e: PointerEvent) => {
+  const cell = (e.target as HTMLElement).closest<HTMLElement>('.cell');
+  if (!cell || !root.value) return;
+  const day = props.cal.weeks[Number(cell.dataset.w)]?.[Number(cell.dataset.i)];
+  // Solo los días con actividad tienen tooltip; al pasar por uno vacío se oculta.
+  if (!day || !count(day)) return hide();
+  const box = root.value.getBoundingClientRect();
+  const r = cell.getBoundingClientRect();
+  const center = r.left - box.left + r.width / 2;
+  // Centrado sobre la celda, sin salirse del calendario; la flecha sigue apuntando a la celda.
+  const x = Math.min(Math.max(center, TIP_W / 2 + EDGE), box.width - TIP_W / 2 - EDGE);
+  Object.assign(tip, { on: true, day, x, y: r.top - box.top, arrow: center - x });
+};
+const hide = () => {
+  tip.on = false;
+};
 
 // Empieza mostrando lo más reciente (a la derecha).
 const scroller = ref<HTMLElement | null>(null);
@@ -95,6 +137,7 @@ onMounted(() => {
 .contrib {
   --cell: 22px;
   --gap: 4px;
+  position: relative;
   border: 1px dashed var(--rule);
   border-radius: 12px;
   padding: 18px 18px 14px;
@@ -138,4 +181,79 @@ onMounted(() => {
 .legend .sw { --cell: 12px; border-radius: 3px; }
 .legend .sw:first-child { margin-left: 4px; }
 .legend .sw:last-of-type { margin-right: 4px; }
+
+/* Celda bajo el cursor: un anillo de tinta, sin mover la cuadrícula. */
+.cell { transition: box-shadow .15s ease; }
+.cell.hot { box-shadow: 0 0 0 1.5px var(--bg), 0 0 0 3px var(--fg); }
+
+/* Tooltip en tinta invertida: sirve igual en claro y en oscuro. Aparece subiendo
+   con un leve rebote y, mientras está abierto, se desliza entre celdas. */
+.tip {
+  --ease-out: cubic-bezier(.2, .8, .2, 1);
+  --spring: cubic-bezier(.34, 1.56, .64, 1);
+  position: absolute;
+  z-index: 5;
+  width: 164px;
+  padding: 10px 12px 11px;
+  display: grid;
+  gap: 5px;
+  border-radius: 10px;
+  background: var(--fg);
+  color: var(--bg);
+  font-size: 12px;
+  box-shadow: 0 14px 32px -14px color-mix(in srgb, var(--fg) 55%, transparent);
+  pointer-events: none;
+  transform-origin: calc(50% + var(--arrow)) 100%;
+  transform: translate(-50%, calc(-100% - 6px)) scale(.94);
+  opacity: 0;
+  transition:
+    opacity .14s ease,
+    transform .26s var(--spring),
+    left .2s var(--ease-out),
+    top .2s var(--ease-out);
+}
+.tip.on {
+  opacity: 1;
+  transform: translate(-50%, calc(-100% - 10px)) scale(1);
+}
+/* Flecha que apunta a la celda aunque el tooltip esté pegado a un borde. */
+.tip::after {
+  content: '';
+  position: absolute;
+  left: calc(50% + var(--arrow) - 5px);
+  bottom: -5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: inherit;
+  rotate: 45deg;
+  transition: left .2s var(--ease-out);
+}
+.tip-date {
+  font-size: 11px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--bg) 60%, transparent);
+}
+.tip-row { display: flex; align-items: center; gap: 7px; }
+.tip-row b { margin-left: auto; font-weight: 500; font-variant-numeric: tabular-nums; }
+.dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+.gh { background: var(--bg); }
+.aws { background: color-mix(in srgb, var(--bg) 40%, transparent); }
+.tip-bar {
+  display: flex;
+  height: 4px;
+  margin-top: 3px;
+  border-radius: 2px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--bg) 14%, transparent);
+}
+.tip-bar span { transition: width .3s var(--ease-out); }
+
+@media (prefers-reduced-motion: reduce) {
+  .tip,
+  .tip.on { transform: translate(-50%, calc(-100% - 10px)); transition: opacity .14s ease; }
+  .tip::after,
+  .tip-bar span { transition: none; }
+}
 </style>
