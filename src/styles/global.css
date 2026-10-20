@@ -39,6 +39,20 @@ a:hover { color: var(--muted); }
 button { font: inherit; }
 ::selection { background: var(--fg); color: var(--bg); }
 
+/* Barras de scroll en tinta del tema: riel transparente y una píldora delgada,
+   en lugar del riel nativo (que en oscuro sale blanco). Como salen de --fg,
+   sirven igual en claro y en oscuro. */
+:root {
+  --scroll-thumb: color-mix(in srgb, var(--fg) 20%, transparent);
+  --scroll-thumb-hover: color-mix(in srgb, var(--fg) 42%, transparent);
+}
+* { scrollbar-width: thin; scrollbar-color: var(--scroll-thumb) transparent; }
+/* Respaldo para navegadores WebKit que no aplican scrollbar-color. */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--scroll-thumb-hover); }
+
 @keyframes jrspin { to { transform: rotate(360deg); } }
 @keyframes jreq { 0%, 100% { transform: scaleY(.3); } 50% { transform: scaleY(1); } }
 

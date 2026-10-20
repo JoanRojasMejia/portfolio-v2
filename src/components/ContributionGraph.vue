@@ -142,7 +142,7 @@ onMounted(() => {
   border-radius: 12px;
   padding: 18px 18px 14px;
 }
-.scroller { overflow-x: auto; scrollbar-width: thin; padding-bottom: 6px; }
+.scroller { overflow-x: auto; padding-bottom: 8px; }
 .graph { width: max-content; }
 .months,
 .cells {
