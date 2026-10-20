@@ -163,11 +163,17 @@ if (opts.prs) {
     fail(`No pude leer tu sesión de AWS (${err.message.split('\n')[0]}). Inicia sesión (aws sso login) o pasa --author-arn.`);
   }
   console.log(`· PRs abiertos por ${arn}`);
+  const seenRepos = new Set(); // repos de CodeCommit ya consultados (un worktree o un segundo clon apunta al mismo)
   for (const s of summary) {
     if (!s.name) {
       console.warn(`· ${s.repo}: su origin no es de CodeCommit, no busco PRs`);
       continue;
     }
+    if (seenRepos.has(s.name)) {
+      console.log(`· ${s.repo}: sus PRs ya se contaron en otra copia de ${s.name}`);
+      continue;
+    }
+    seenRepos.add(s.name);
     const ids = [];
     for (const status of ['OPEN', 'CLOSED']) {
       let token;
