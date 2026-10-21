@@ -31,13 +31,57 @@
         </div>
       </div>
     </div>
+    <!-- Días de gimnasio (Hevy): a todo el ancho, porque el calendario es largo. -->
+    <div v-if="gym" class="gym">
+      <div class="mono outside-label">{{ t.gymUp }}</div>
+      <p class="serif gym-line">{{ t.gymLine }}</p>
+      <!-- Cada celda lleva la inicial del entreno; el tooltip, su nombre y cuánto duró. -->
+      <ContributionGraph :cal="gym" :series="[t.srcHevy]" :unit="[t.workoutOne, t.workoutMany]" :cell-text="initial">
+        <template #tip="{ day }">
+          <span v-for="(s, i) in sessionsOf(day)" :key="i" class="session">
+            <span class="session-title">{{ s.title || t.workoutUntitled }}</span>
+            <span v-if="s.minutes" class="session-time">{{ duration(s.minutes) }}</span>
+          </span>
+        </template>
+      </ContributionGraph>
+    </div>
   </section>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
 import SheetLabel from './SheetLabel.vue';
+import ContributionGraph from './ContributionGraph.vue';
+import type { CalendarDay } from '../lib/calendar';
+import type { GymCalendar, GymSession } from '../lib/hevy';
 import { isEs, nowArtist, t } from '../lib/site';
+
+const props = withDefaults(defineProps<{ gym?: GymCalendar | null }>(), { gym: null });
+
+const sessionsOf = (d: CalendarDay): GymSession[] => props.gym?.sessions[d.date] ?? [];
+
+// Palabras de relleno al inicio del título que no distinguen una rutina de otra
+// ("Día de pecho", "Day of legs").
+const FILLER = new Set(['día', 'dia', 'de', 'del', 'la', 'el', 'day', 'of', 'the']);
+
+// Dos letras que identifican el entreno: las primeras de la primera palabra que no
+// sea relleno ("Día de pecho" → PE, "Día de pierna" → PI). Un punto si no hay letras.
+const initial = (d: CalendarDay) => {
+  const [first] = sessionsOf(d);
+  if (!first) return '';
+  const words = first.title.toLowerCase().match(/\p{L}+/gu) ?? [];
+  const word = words.find((w) => !FILLER.has(w)) ?? words[0];
+  return word ? word.slice(0, 2).toUpperCase() : '•';
+};
+
+// Duración aproximada, redondeada a 5 minutos: "≈ 45 min", "≈ 1 h 10 min".
+const duration = (minutes: number) => {
+  const m = Math.max(5, Math.round(minutes / 5) * 5);
+  const h = Math.floor(m / 60);
+  const rest = m % 60;
+  if (!h) return `≈ ${rest} ${t.value.minShort}`;
+  return rest ? `≈ ${h} ${t.value.hourShort} ${rest} ${t.value.minShort}` : `≈ ${h} ${t.value.hourShort}`;
+};
 
 const outside = computed(() =>
   isEs.value
@@ -76,4 +120,12 @@ const outside = computed(() =>
 .outside { display: flex; flex-direction: column; }
 .row { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-top: 1px solid var(--rule); font-size: 16px; }
 .v { color: var(--muted); font-size: 12px; }
+.gym { display: flex; flex-direction: column; gap: 12px; margin-top: 64px; }
+.gym-line { margin: 0 0 8px; font-size: clamp(22px, 2.4vw, 28px); line-height: 1.2; }
+/* Contenido del tooltip: el slot se compila en este componente, así que estos
+   estilos scoped le aplican aunque se pinte dentro de ContributionGraph. */
+.session { display: grid; gap: 2px; }
+.session + .session { margin-top: 6px; }
+.session-title { font-size: 13px; line-height: 1.25; }
+.session-time { font-size: 11px; color: color-mix(in srgb, var(--bg) 60%, transparent); }
 </style>

@@ -6,23 +6,10 @@
 //     exportan aparte a src/data/contributions-extra.json. Solo fechas y números.
 
 import extra from '../data/contributions-extra.json';
-
-export interface ContribDay {
-  date: string; // AAAA-MM-DD
-  gh: number;
-  extra: number;
-}
-
-export interface ContribCalendar {
-  weeks: ContribDay[][]; // columnas de domingo a sábado, la última es la semana actual
-  total: number;
-  ghTotal: number;
-  extraTotal: number;
-}
+import { buildCalendar, type Calendar } from './calendar';
 
 const API = 'https://api.github.com/graphql';
 const TIMEOUT_MS = 8000;
-const WEEKS = 53;
 
 const QUERY = `query($login: String!) {
   user(login: $login) {
@@ -63,33 +50,10 @@ async function githubDays(): Promise<Record<string, number>> {
   }
 }
 
-// Fecha de hoy en Bogotá, como AAAA-MM-DD.
-const todayBogota = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota' }).format(new Date());
-
-const iso = (d: Date) => d.toISOString().slice(0, 10);
-
-export async function getContributions(): Promise<ContribCalendar | null> {
+// Fuentes en orden fijo: counts[0] = GitHub, counts[1] = CodeCommit (AWS).
+// Sin ninguna de las dos devuelve null y la sección no se muestra.
+export async function getContributions(): Promise<Calendar | null> {
   const gh = await githubDays();
   const ex: Record<string, number> = (extra as { days?: Record<string, number> }).days ?? {};
-
-  // 53 semanas que terminan en la semana actual; cada columna empieza en domingo.
-  const end = new Date(`${todayBogota()}T00:00:00Z`);
-  const start = new Date(end);
-  start.setUTCDate(start.getUTCDate() - end.getUTCDay() - (WEEKS - 1) * 7);
-
-  const weeks: ContribDay[][] = [];
-  let ghTotal = 0;
-  let extraTotal = 0;
-  for (const d = new Date(start); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
-    if (d.getUTCDay() === 0) weeks.push([]);
-    const date = iso(d);
-    const day = { date, gh: gh[date] ?? 0, extra: ex[date] ?? 0 };
-    ghTotal += day.gh;
-    extraTotal += day.extra;
-    weeks[weeks.length - 1].push(day);
-  }
-
-  // Sin ninguna fuente no se muestra nada (mejor que un calendario vacío).
-  if (!ghTotal && !extraTotal) return null;
-  return { weeks, total: ghTotal + extraTotal, ghTotal, extraTotal };
+  return buildCalendar([gh, ex]);
 }

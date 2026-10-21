@@ -8,7 +8,7 @@
     <PlaygroundSection />
     <ActivitySection v-if="contrib" :cal="contrib" />
     <AlbumSection />
-    <AboutSection />
+    <AboutSection :gym="gym" />
     <SiteFooter />
     <BottomNav home />
   </div>
@@ -27,13 +27,14 @@ import AboutSection from './AboutSection.vue';
 import SiteFooter from './SiteFooter.vue';
 import BottomNav from './BottomNav.vue';
 import type { RecentTrack } from '../lib/lastfm';
-import type { ContribCalendar } from '../lib/contributions';
+import type { Calendar } from '../lib/calendar';
+import type { GymCalendar } from '../lib/hevy';
 import { startSite } from '../lib/site';
 import { startSound } from '../lib/sound';
 
 withDefaults(
-  defineProps<{ hero?: 'editorial' | 'tecnico'; track?: RecentTrack | null; contrib?: ContribCalendar | null }>(),
-  { hero: 'editorial', track: null, contrib: null },
+  defineProps<{ hero?: 'editorial' | 'tecnico'; track?: RecentTrack | null; contrib?: Calendar | null; gym?: GymCalendar | null }>(),
+  { hero: 'editorial', track: null, contrib: null, gym: null },
 );
 
 let stop: (() => void) | undefined;

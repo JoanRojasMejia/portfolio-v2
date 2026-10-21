@@ -1,6 +1,7 @@
 <template>
-  <!-- Calendario de contribuciones: una columna por semana, el número del día en
-       cada celda y la tinta más oscura cuantas más contribuciones. -->
+  <!-- Calendario del último año: una columna por semana, el número del día en cada
+       celda y la tinta más oscura cuanto más hubo. Sirve para una o varias fuentes
+       (Actividad: GitHub + AWS; gimnasio: Hevy). -->
   <div ref="root" class="contrib">
     <div ref="scroller" class="scroller" @scroll="hide">
       <div class="graph" :style="{ '--weeks': cal.weeks.length }">
@@ -18,12 +19,13 @@
               :data-w="w"
               :data-i="i"
               aria-hidden="true"
-            >{{ count(d) || '' }}</span>
+            >{{ cellText ? cellText(d) : count(d) || '' }}</span>
           </template>
         </div>
       </div>
     </div>
-    <!-- Un solo tooltip que se desliza de celda en celda: GitHub frente a AWS ese día. -->
+    <!-- Un solo tooltip que se desliza de celda en celda: el conteo de cada fuente ese
+         día y, si hay más de una, la barra con la proporción entre ellas. -->
     <div
       class="tip mono"
       :class="{ on: tip.on }"
@@ -32,12 +34,16 @@
     >
       <template v-if="tip.day">
         <span class="tip-date">{{ when(tip.day) }}</span>
-        <span class="tip-row"><i class="dot gh"></i>{{ t.srcGithub }}<b>{{ tip.day.gh }}</b></span>
-        <span class="tip-row"><i class="dot aws"></i>{{ t.srcAws }}<b>{{ tip.day.extra }}</b></span>
-        <span class="tip-bar">
-          <span class="gh" :style="{ width: `${share(tip.day).gh}%` }"></span>
-          <span class="aws" :style="{ width: `${share(tip.day).aws}%` }"></span>
-        </span>
+        <!-- Contenido por defecto: el conteo de cada fuente. Quien use el calendario
+             puede reemplazarlo con el slot "tip" (p. ej. el entreno del día). -->
+        <slot name="tip" :day="tip.day">
+          <span v-for="(label, s) in series" :key="label" class="tip-row">
+            <i class="dot" :class="`s${s}`"></i>{{ label }}<b>{{ tip.day.counts[s] }}</b>
+          </span>
+          <span v-if="series.length > 1" class="tip-bar">
+            <span v-for="(label, s) in series" :key="label" :class="`s${s}`" :style="{ width: `${share(tip.day, s)}%` }"></span>
+          </span>
+        </slot>
       </template>
     </div>
     <div class="foot mono">
@@ -51,16 +57,25 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue';
-import type { ContribCalendar, ContribDay } from '../lib/contributions';
+import type { Calendar, CalendarDay } from '../lib/calendar';
 import { lang, t } from '../lib/site';
 
-const props = defineProps<{ cal: ContribCalendar }>();
+const props = defineProps<{
+  cal: Calendar;
+  /** Etiqueta de cada fuente, en el mismo orden que CalendarDay.counts. */
+  series: string[];
+  /** Unidad para el total y el resumen: [singular, plural]. */
+  unit: [string, string];
+  /** Texto de cada celda; por defecto, el total del día (vacío si es 0). */
+  cellText?: (d: CalendarDay) => string;
+}>();
 
-const count = (d: ContribDay) => d.gh + d.extra;
+type CalendarDay = CalendarDay;
+const count = (d: CalendarDay) => d.counts.reduce((a, b) => a + b, 0);
 
 // Nivel de tinta (0–4) relativo al día con más contribuciones del año.
 const max = computed(() => Math.max(1, ...props.cal.weeks.flat().map(count)));
-const level = (d: ContribDay) => {
+const level = (d: CalendarDay) => {
   const c = count(d);
   if (!c) return 0;
   const r = c / max.value;
@@ -93,7 +108,7 @@ const months = computed(() => {
   return out;
 });
 
-const word = (n: number) => (lang.value === 'es' ? (n === 1 ? 'contribución' : 'contribuciones') : n === 1 ? 'contribution' : 'contributions');
+const word = (n: number) => (n === 1 ? props.unit[0] : props.unit[1]);
 const summary = computed(() => `${props.cal.total.toLocaleString(locale.value)} ${word(props.cal.total)} ${t.value.lastYear}`);
 
 // ---- Tooltip ----
@@ -101,12 +116,13 @@ const TIP_W = 164; // ancho fijo del tooltip, para centrarlo sin medirlo
 const EDGE = 6; // margen mínimo contra los bordes del calendario
 const root = ref<HTMLElement | null>(null);
 // day se conserva al ocultar, así el contenido no desaparece antes del fundido.
-const tip = reactive<{ on: boolean; day: ContribDay | null; x: number; y: number; arrow: number }>({ on: false, day: null, x: 0, y: 0, arrow: 0 });
+const tip = reactive<{ on: boolean; day: CalendarDay | null; x: number; y: number; arrow: number }>({ on: false, day: null, x: 0, y: 0, arrow: 0 });
 
-const when = (d: ContribDay) => dateFmt.value.format(new Date(`${d.date}T00:00:00Z`));
-const share = (d: ContribDay) => {
+const when = (d: CalendarDay) => dateFmt.value.format(new Date(`${d.date}T00:00:00Z`));
+// Porcentaje de la fuente s sobre el total del día, para la barra del tooltip.
+const share = (d: CalendarDay, s: number) => {
   const c = count(d);
-  return c ? { gh: (d.gh / c) * 100, aws: (d.extra / c) * 100 } : { gh: 0, aws: 0 };
+  return c ? (d.counts[s] / c) * 100 : 0;
 };
 
 const show = (e: PointerEvent) => {
@@ -238,8 +254,8 @@ onMounted(() => {
 .tip-row { display: flex; align-items: center; gap: 7px; }
 .tip-row b { margin-left: auto; font-weight: 500; font-variant-numeric: tabular-nums; }
 .dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
-.gh { background: var(--bg); }
-.aws { background: color-mix(in srgb, var(--bg) 40%, transparent); }
+.s0 { background: var(--bg); }
+.s1 { background: color-mix(in srgb, var(--bg) 40%, transparent); }
 .tip-bar {
   display: flex;
   height: 4px;

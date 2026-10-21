@@ -3,10 +3,12 @@ import Layout from '../layouts/Layout.astro';
 import Portfolio from '../components/Portfolio.vue';
 import { getRecentTrack } from '../lib/lastfm';
 import { getContributions } from '../lib/contributions';
+import { getGymCalendar } from '../lib/hevy';
 
-// En build time (y en cada recarga con `pnpm dev`). Al cliente solo llegan los datos de la canción.
-const [track, contrib] = await Promise.all([getRecentTrack(), getContributions()]);
+// En build time (y en cada recarga con `pnpm dev`). Al cliente solo llegan los datos
+// ya resueltos (la canción y los conteos por día), nunca las claves.
+const [track, contrib, gym] = await Promise.all([getRecentTrack(), getContributions(), getGymCalendar()]);
 ---
 <Layout title="Joan Rojas — Product Engineer">
-  <Portfolio client:load hero="editorial" track={track} contrib={contrib} />
+  <Portfolio client:load hero="editorial" track={track} contrib={contrib} gym={gym} />
 </Layout>
