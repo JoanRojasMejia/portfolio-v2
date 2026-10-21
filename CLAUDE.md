@@ -1,15 +1,17 @@
 # Portafolio v2
 
-Sitio estático con Astro 7 y islas de Vue 3.5. No tiene base de datos. Node 20 o superior.
+Sitio estático con Astro 7 y islas de Vue 3.5. No tiene base de datos. Node 20 o superior y pnpm 12 (versión fijada en `packageManager`).
 
 ## Cómo correrlo
 
 ```bash
-npm ci
+pnpm install --frozen-lockfile
 cp .env.example .env   # luego pega LASTFM_KEY y GITHUB_TOKEN a mano
-npm run dev            # http://localhost:4321
-npm run build          # genera dist/ (13 páginas)
+pnpm dev               # http://localhost:4321
+pnpm build             # genera dist/ (13 páginas)
 ```
+
+- El gestor es pnpm: no uses npm ni generes `package-lock.json`; el lockfile es `pnpm-lock.yaml`.
 
 - `.env` está en `.gitignore`: nunca se sube ni se muestra su contenido.
 - Sin claves el sitio igual funciona: la canción del hero muestra "Last.fm no disponible" y la sección Actividad se oculta si tampoco hay datos en `src/data/contributions-extra.json`.

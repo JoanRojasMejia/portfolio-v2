@@ -8,7 +8,7 @@ import { ls } from './site';
 // apagarlo desde el header y la preferencia se recuerda.
 //
 // LIBRARY tiene todos los sonidos disponibles y ROLES dice cuál suena en cada
-// interacción. Para elegir, abre /sonidos con `npm run dev`.
+// interacción. Para elegir, abre /sonidos con `pnpm dev`.
 
 interface Voice {
   wave: OscillatorType;

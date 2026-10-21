@@ -2,7 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import SoundLab from '../components/SoundLab.vue';
 
-// Página de prueba de sonidos: solo para `npm run dev`. En producción redirige al inicio.
+// Página de prueba de sonidos: solo para `pnpm dev`. En producción redirige al inicio.
 if (import.meta.env.PROD) return Astro.redirect('/');
 ---
 <Layout title="Sonidos — Joan Rojas">

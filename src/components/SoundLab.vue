@@ -62,7 +62,7 @@ import { computed, reactive, ref } from 'vue';
 import { LIBRARY, ROLES, ROLES_DEV_KEY, currentRoles, preview, type SoundId, type SoundRole } from '../lib/sound';
 import { ls } from '../lib/site';
 
-// Página de prueba (solo en `npm run dev`): escuchar la biblioteca y asignar un
+// Página de prueba (solo en `pnpm dev`): escuchar la biblioteca y asignar un
 // sonido a cada rol. La asignación se guarda en localStorage para probarla en el
 // sitio; para publicarla hay que copiarla en ROLES (src/lib/sound.ts).
 

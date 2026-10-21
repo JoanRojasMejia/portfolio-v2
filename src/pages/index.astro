@@ -4,7 +4,7 @@ import Portfolio from '../components/Portfolio.vue';
 import { getRecentTrack } from '../lib/lastfm';
 import { getContributions } from '../lib/contributions';
 
-// En build time (y en cada recarga con `npm run dev`). Al cliente solo llegan los datos de la canción.
+// En build time (y en cada recarga con `pnpm dev`). Al cliente solo llegan los datos de la canción.
 const [track, contrib] = await Promise.all([getRecentTrack(), getContributions()]);
 ---
 <Layout title="Joan Rojas — Product Engineer">
