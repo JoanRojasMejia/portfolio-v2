@@ -18,7 +18,7 @@
         <span class="mono label">05.1 · COLLAGE — {{ pt.dragHint }}</span>
         <button class="pill mono" @click="collage?.reset()">↺ {{ t.reset }}</button>
       </div>
-      <Collage ref="collage" :items="ALBUM_PAGE" aspect="16 / 12" :max-y="92" />
+      <Collage ref="collage" :items="ALBUM_PAGE" aspect="16 / 18" :max-y="92" />
     </section>
 
     <section id="flash" class="sheet mid" data-screen-label="Álbum · flash">

@@ -59,42 +59,62 @@ export interface AlbumItem {
   text?: Localized;
 }
 
+// Fotos del álbum: public/assets/album/ (WebP, optimizadas desde las originales).
 export const ALBUM: AlbumItem[] = [
-  { k:'tattoo', src:'/assets/tat-hannya.jpg', x:2, y:3, w:18, r:-4, no:'Nº 01', name:'Hannya', place:{es:'espalda',en:'back'} },
-  { k:'sticker', src:'/assets/st-portrait.png', x:21, y:-1, w:11, r:7 },
-  { k:'photo', src:'/assets/motos.jpg', x:33, y:4, w:23, r:-2, ar:'4/3', caption:{es:'las motos · Bogotá',en:'the bikes · Bogotá'} },
+  { k:'tattoo', src:'/assets/album/tat-hannya.webp', x:2, y:3, w:18, r:-4, no:'Nº 01', name:'Hannya', place:{es:'espalda',en:'back'} },
+  { k:'sticker', src:'/assets/album/st-hoodie.webp', x:21, y:-1, w:11, r:7 },
+  { k:'photo', src:'/assets/album/festival.webp', x:33, y:4, w:23, r:-2, ar:'4/3', caption:{es:'con los parceros',en:'with the crew'} },
   { k:'note', x:58, y:4, w:15, r:3, text:{es:'cosas que amo: tatuarme, la música a todo volumen, rodar.',en:'things I love: getting tattooed, loud music, riding.'} },
-  { k:'tattoo', src:'/assets/tat-sleeve-a.jpg', x:76, y:2, w:18, r:5, no:'Nº 02', name:{es:'Manga floral',en:'Floral sleeve'}, place:{es:'brazo',en:'arm'} },
-  { k:'sticker', src:'/assets/st-concert.png', x:1, y:58, w:14, r:-6 },
-  { k:'photo', src:'/assets/beach.jpg', x:16, y:46, w:14, r:4, ar:'3/4', caption:{es:'atardecer',en:'sunset'} },
-  { k:'tattoo', src:'/assets/tat-blackwork.jpg', x:31, y:46, w:17, r:-3, no:'Nº 03', name:'Blackwork', place:{es:'espalda',en:'back'} },
-  { k:'photo', src:'/assets/dog.jpg', x:49, y:50, w:13, r:6, ar:'3/4', caption:'♥' },
-  { k:'tattoo', src:'/assets/tat-sleeve-b.jpg', x:63, y:47, w:13, r:-6, no:'Nº 04', name:{es:'Manga',en:'Sleeve'}, place:{es:'mano',en:'hand'} },
-  { k:'sticker', src:'/assets/st-water.png', x:45, y:83, w:9, r:8 },
-  { k:'sticker', src:'/assets/st-shadow.png', x:77, y:64, w:11, r:-5 },
-  { k:'photo', src:'/assets/festival.jpg', x:84, y:46, w:15, r:3, ar:'4/3', caption:{es:'con los parceros',en:'with the crew'} },
+  { k:'tattoo', src:'/assets/album/tat-sleeve.webp', x:76, y:2, w:18, r:5, no:'Nº 02', name:{es:'Manga floral',en:'Floral sleeve'}, place:{es:'brazo',en:'arm'} },
+  { k:'sticker', src:'/assets/album/st-gym.webp', x:1, y:58, w:14, r:-6 },
+  { k:'photo', src:'/assets/album/sunset.webp', x:16, y:46, w:14, r:4, ar:'3/4', caption:{es:'atardecer',en:'sunset'} },
+  { k:'photo', src:'/assets/album/bike-city.webp', x:31, y:46, w:17, r:-3, ar:'3/4', caption:{es:'la moto · Bogotá',en:'the bike · Bogotá'} },
+  { k:'photo', src:'/assets/album/copilot.webp', x:49, y:50, w:13, r:6, ar:'3/4', caption:{es:'copiloto',en:'co-pilot'} },
+  { k:'photo', src:'/assets/album/crew-mirror.webp', x:63, y:47, w:13, r:-6, ar:'3/4', caption:{es:'los de siempre',en:'the usual crew'} },
+  { k:'sticker', src:'/assets/album/st-water.webp', x:45, y:83, w:9, r:8 },
+  { k:'sticker', src:'/assets/album/st-dog.webp', x:77, y:64, w:11, r:-5 },
+  { k:'photo', src:'/assets/album/show.webp', x:84, y:46, w:15, r:3, ar:'4/3', caption:{es:'en primera fila',en:'front row'} },
 ];
 
-// The full album page: photos and stickers only (tattoos get their own flash sheet).
+// La página completa del álbum: todas las fotos y stickers (los tatuajes tienen su hoja de flash).
 export const ALBUM_PAGE: AlbumItem[] = [
-  { k:'photo', src:'/assets/motos.jpg', x:2, y:2, w:26, r:-3, ar:'4/3', caption:{es:'las motos · Bogotá',en:'the bikes · Bogotá'} },
-  { k:'sticker', src:'/assets/st-portrait.png', x:27, y:0, w:13, r:7 },
-  { k:'photo', src:'/assets/beach.jpg', x:40, y:3, w:16, r:4, ar:'3/4', caption:{es:'atardecer',en:'sunset'} },
-  { k:'note', x:57, y:4, w:19, r:-3, text:{es:'cosas que amo: tatuarme, la música a todo volumen, rodar.',en:'things I love: getting tattooed, loud music, riding.'} },
-  { k:'photo', src:'/assets/peacock.jpg', x:77, y:2, w:17, r:5, ar:'3/4', caption:{es:'visita',en:'visitor'} },
-  { k:'sticker', src:'/assets/st-concert.png', x:3, y:40, w:16, r:-6 },
-  { k:'photo', src:'/assets/dog.jpg', x:20, y:38, w:15, r:5, ar:'3/4', caption:'♥' },
-  { k:'photo', src:'/assets/friends-street.jpg', x:37, y:42, w:24, r:-2, ar:'16/9', caption:{es:'los de siempre',en:'the usual crew'} },
-  { k:'sticker', src:'/assets/st-shadow.png', x:61, y:48, w:12, r:-5 },
-  { k:'photo', src:'/assets/festival.jpg', x:73, y:40, w:22, r:3, ar:'4/3', caption:{es:'con los parceros',en:'with the crew'} },
-  { k:'photo', src:'/assets/portrait-night.jpg', x:8, y:68, w:14, r:-4, ar:'3/4', caption:'BOG' },
-  { k:'sticker', src:'/assets/st-water.png', x:26, y:74, w:11, r:8 },
-  { k:'photo', src:'/assets/mirror.jpg', x:62, y:66, w:14, r:6, ar:'3/4', caption:{es:'el espejo',en:'the mirror'} },
+  // Fila 1
+  { k:'photo', src:'/assets/album/beach-crew.webp', x:1, y:2, w:23, r:-2, ar:'4/3', caption:{es:'atardecer con los parceros',en:'sunset with the crew'} },
+  { k:'sticker', src:'/assets/album/st-hoodie.webp', x:23, y:0, w:11, r:7 },
+  { k:'photo', src:'/assets/album/mirror.webp', x:35, y:3, w:14, r:3, ar:'3/4', caption:{es:'el espejo',en:'the mirror'} },
+  { k:'note', x:51, y:4, w:16, r:-3, text:{es:'cosas que amo: tatuarme, la música a todo volumen, rodar.',en:'things I love: getting tattooed, loud music, riding.'} },
+  { k:'photo', src:'/assets/album/setup.webp', x:69, y:1, w:12, r:4, ar:'9/16', caption:{es:'el setup',en:'the setup'} },
+  { k:'sticker', src:'/assets/album/st-car.webp', x:83, y:4, w:14, r:-5 },
+  // Fila 2
+  { k:'sticker', src:'/assets/album/st-gym.webp', x:0, y:24, w:13, r:-6 },
+  { k:'photo', src:'/assets/album/gym-crew.webp', x:13, y:21, w:15, r:3, ar:'3/4', caption:{es:'gym con los parceros',en:'gym with the crew'} },
+  { k:'photo', src:'/assets/album/friends-selfie.webp', x:30, y:25, w:22, r:-2, ar:'16/9', caption:{es:'con el parcero',en:'with my buddy'} },
+  { k:'sticker', src:'/assets/album/st-studio.webp', x:52, y:22, w:12, r:6 },
+  { k:'photo', src:'/assets/album/dog-selfie.webp', x:65, y:21, w:11, r:-4, ar:'9/16', caption:'♥' },
+  { k:'photo', src:'/assets/album/concert.webp', x:79, y:23, w:15, r:4, ar:'3/4', caption:{es:'concierto',en:'concert'} },
+  // Fila 3
+  { k:'photo', src:'/assets/album/room.webp', x:2, y:43, w:14, r:-3, ar:'3/4', caption:{es:'en casa',en:'at home'} },
+  { k:'sticker', src:'/assets/album/st-water.webp', x:16, y:48, w:10, r:8 },
+  { k:'photo', src:'/assets/album/festival.webp', x:27, y:44, w:22, r:2, ar:'4/3', caption:{es:'festival',en:'festival'} },
+  { k:'photo', src:'/assets/album/desk.webp', x:50, y:42, w:11, r:-3, ar:'9/16', caption:{es:'donde pasa todo',en:'where it all happens'} },
+  { k:'sticker', src:'/assets/album/st-elevator.webp', x:62, y:46, w:11, r:-6 },
+  { k:'photo', src:'/assets/album/bike-wash.webp', x:74, y:43, w:12, r:4, ar:'3/5', caption:{es:'día de lavada',en:'wash day'} },
+  { k:'sticker', src:'/assets/album/st-round-mirror.webp', x:87, y:47, w:12, r:6 },
+  // Fila 4
+  { k:'photo', src:'/assets/album/sunset.webp', x:3, y:64, w:14, r:3, ar:'3/4', caption:{es:'atardecer',en:'sunset'} },
+  { k:'photo', src:'/assets/album/show.webp', x:19, y:66, w:20, r:-2, ar:'4/3', caption:{es:'en primera fila',en:'front row'} },
+  { k:'sticker', src:'/assets/album/st-gym-mirror.webp', x:40, y:64, w:11, r:-5 },
+  { k:'photo', src:'/assets/album/bike-city.webp', x:52, y:63, w:14, r:2, ar:'3/4', caption:{es:'la moto · Bogotá',en:'the bike · Bogotá'} },
+  { k:'photo', src:'/assets/album/gym.webp', x:68, y:65, w:13, r:-3, ar:'3/4', caption:'gym' },
+  { k:'sticker', src:'/assets/album/st-dog.webp', x:83, y:66, w:14, r:6 },
+  // Fila 5
+  { k:'photo', src:'/assets/album/crew-mirror.webp', x:22, y:83, w:13, r:-2, ar:'3/4', caption:{es:'los de siempre',en:'the usual crew'} },
+  { k:'photo', src:'/assets/album/copilot.webp', x:56, y:82, w:11, r:4, ar:'9/16', caption:{es:'copiloto',en:'co-pilot'} },
 ];
 
 export const FLASH: { no: string; name: Localized; place: Localized; src: string }[] = [
-  { no:'Nº 01', name:'Hannya', place:{es:'espalda',en:'back'}, src:'/assets/tat-hannya.jpg' },
-  { no:'Nº 02', name:{es:'Manga floral',en:'Floral sleeve'}, place:{es:'brazo',en:'arm'}, src:'/assets/tat-sleeve-a.jpg' },
+  { no:'Nº 01', name:'Hannya', place:{es:'espalda',en:'back'}, src:'/assets/album/tat-hannya.webp' },
+  { no:'Nº 02', name:{es:'Manga floral',en:'Floral sleeve'}, place:{es:'brazo',en:'arm'}, src:'/assets/album/tat-sleeve.webp' },
   { no:'Nº 03', name:'Blackwork', place:{es:'espalda',en:'back'}, src:'/assets/tat-blackwork.jpg' },
   { no:'Nº 04', name:{es:'Manga',en:'Sleeve'}, place:{es:'mano',en:'hand'}, src:'/assets/tat-sleeve-b.jpg' },
 ];
