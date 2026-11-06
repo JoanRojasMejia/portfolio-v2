@@ -13,7 +13,7 @@
           <div
             class="flash-img"
             :class="{ inked: inked === i }"
-            :style="{ backgroundImage: `url(${a.src})` }"
+            :style="{ aspectRatio: a.ar || '4/5', backgroundImage: `url(${a.src})` }"
             @pointerenter="inked = i"
             @pointerleave="inked = -1"
           ></div>
@@ -44,16 +44,17 @@ const props = withDefaults(defineProps<{ items: AlbumItem[]; aspect?: string; ma
   maxY: 90,
 });
 
-const initial = () => props.items.map((a, i) => ({ x: a.x, y: a.y, z: i + 1 }));
+// Los stickers empiezan encima de todo, como pegados sobre las fotos.
+const initial = () => props.items.map((a, i) => ({ x: a.x, y: a.y, z: (a.k === 'sticker' ? props.items.length : 0) + i + 1 }));
 const pos = ref(initial());
-let topZ = props.items.length + 1;
+let topZ = props.items.length * 2 + 1;
 const inked = ref(-1);
 const board = ref<HTMLElement | null>(null);
 let stopDrag: (() => void) | null = null;
 
 function reset() {
   pos.value = initial();
-  topZ = props.items.length + 1;
+  topZ = props.items.length * 2 + 1;
 }
 defineExpose({ reset });
 

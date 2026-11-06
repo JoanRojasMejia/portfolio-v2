@@ -8,7 +8,7 @@
     </div>
 
     <!-- Los discos en rotación viven solo en la página del álbum (/album). -->
-    <Collage ref="collage" :items="ALBUM" />
+    <Collage ref="collage" :items="ALBUM" aspect="16 / 12" :max-y="92" />
   </section>
 </template>
 
