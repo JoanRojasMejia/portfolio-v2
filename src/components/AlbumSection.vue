@@ -7,12 +7,8 @@
       <button class="pill mono" @click="collage?.reset()">↺ {{ t.reset }}</button>
     </div>
 
+    <!-- Los discos en rotación viven solo en la página del álbum (/album). -->
     <Collage ref="collage" :items="ALBUM" />
-
-    <div class="rotation-head mono">
-      <span class="nowrap">{{ t.rotation }}</span><span class="line"></span><span>{{ t.lastfm }}</span>
-    </div>
-    <Records />
   </section>
 </template>
 
@@ -20,7 +16,6 @@
 import { ref } from 'vue';
 import SheetLabel from './SheetLabel.vue';
 import Collage from './Collage.vue';
-import Records from './Records.vue';
 import { ALBUM } from '../lib/data';
 import { t } from '../lib/site';
 
@@ -37,15 +32,4 @@ const collage = ref<InstanceType<typeof Collage> | null>(null);
   margin-bottom: 12px;
 }
 .head .lead-serif { max-width: 20em; }
-.rotation-head {
-  margin: 48px 0 20px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  font-size: 12px;
-  letter-spacing: .1em;
-  color: var(--muted);
-}
-.nowrap { white-space: nowrap; flex: none; }
-.line { flex: 1; height: 1px; background: var(--rule); display: block; }
 </style>
