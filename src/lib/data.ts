@@ -63,6 +63,8 @@ export interface AlbumItem {
   place?: Localized;
   caption?: Localized;
   text?: Localized;
+  /** Posición en celular [x, y, ancho, giro]; sin ella la pieza no sale en el collage móvil. */
+  m?: [number, number, number, number];
 }
 
 // Fotos del álbum: public/assets/album/ (WebP, optimizadas desde las originales).
@@ -70,23 +72,24 @@ export const ALBUM: AlbumItem[] = [
   // Collage de la portada en escalera (tablero 16:12). ar = proporción real de cada
   // foto, para que ninguna se recorte; las posiciones están revisadas para que
   // ninguna foto tape a otra (los stickers sí se pegan sobre las esquinas).
-  { k:'tattoo', src:'/assets/album/tat-hannya.webp', ar:'9/16', x:2, y:3, w:12, r:-3, no:'Nº 01', name:'Hannya', place:{es:'espalda',en:'back'} },
-  { k:'note', x:17, y:6, w:14, r:-3, text:{es:'cosas que amo: tatuarme, la música a todo volumen, rodar.',en:'things I love: getting tattooed, loud music, riding.'} },
-  { k:'photo', src:'/assets/album/bike-city.webp', ar:'3/4', x:40, y:3, w:14, r:3, caption:{es:'la moto · Bogotá',en:'the bike · Bogotá'} },
-  { k:'photo', src:'/assets/album/concert.webp', ar:'3/4', x:56, y:2, w:13, r:-2, caption:{es:'concierto',en:'concert'} },
-  { k:'photo', src:'/assets/album/crew-mirror.webp', ar:'3/4', x:72, y:3, w:13, r:3, caption:{es:'los de siempre',en:'the usual crew'} },
+  // m = posición en celular, en un tablero vertical (333:1640) con 13 de las piezas.
+  { k:'tattoo', src:'/assets/album/tat-hannya.webp', ar:'9/16', x:2, y:3, w:12, r:-3, no:'Nº 01', name:'Hannya', place:{es:'espalda',en:'back'}, m:[3, 0.5, 40, -3] },
+  { k:'note', x:17, y:6, w:14, r:-3, text:{es:'cosas que amo: tatuarme, la música a todo volumen, rodar.',en:'things I love: getting tattooed, loud music, riding.'}, m:[52, 2.4, 44, 3] },
+  { k:'photo', src:'/assets/album/bike-city.webp', ar:'3/4', x:40, y:3, w:14, r:3, caption:{es:'la moto · Bogotá',en:'the bike · Bogotá'}, m:[3, 32.6, 45, -2] },
+  { k:'photo', src:'/assets/album/concert.webp', ar:'3/4', x:56, y:2, w:13, r:-2, caption:{es:'concierto',en:'concert'}, m:[52, 34.5, 44, 3] },
+  { k:'photo', src:'/assets/album/crew-mirror.webp', ar:'3/4', x:72, y:3, w:13, r:3, caption:{es:'los de siempre',en:'the usual crew'}, m:[52, 69.2, 44, 2] },
   { k:'photo', src:'/assets/album/gym.webp', ar:'3/4', x:86, y:3, w:12, r:4, caption:'gym' },
-  { k:'photo', src:'/assets/album/festival.webp', ar:'4/3', x:16, y:30, w:23, r:2, caption:{es:'con los parceros',en:'with the crew'} },
-  { k:'photo', src:'/assets/album/sunset.webp', ar:'3/4', x:57, y:33, w:13, r:-3, caption:{es:'atardecer',en:'sunset'} },
-  { k:'tattoo', src:'/assets/album/tat-sleeve.webp', ar:'9/16', x:86, y:42, w:12, r:5, no:'Nº 02', name:{es:'Manga floral',en:'Floral sleeve'}, place:{es:'brazo',en:'arm'} },
-  { k:'photo', src:'/assets/album/copilot.webp', ar:'9/16', x:3, y:48, w:11, r:4, caption:{es:'copiloto',en:'co-pilot'} },
-  { k:'photo', src:'/assets/album/show.webp', ar:'4/3', x:40, y:62, w:22, r:-2, caption:{es:'en primera fila',en:'front row'} },
+  { k:'photo', src:'/assets/album/festival.webp', ar:'4/3', x:16, y:30, w:23, r:2, caption:{es:'con los parceros',en:'with the crew'}, m:[14, 18.3, 68, 2] },
+  { k:'photo', src:'/assets/album/sunset.webp', ar:'3/4', x:57, y:33, w:13, r:-3, caption:{es:'atardecer',en:'sunset'}, m:[3, 50.0, 44, 3] },
+  { k:'tattoo', src:'/assets/album/tat-sleeve.webp', ar:'9/16', x:86, y:42, w:12, r:5, no:'Nº 02', name:{es:'Manga floral',en:'Floral sleeve'}, place:{es:'brazo',en:'arm'}, m:[54, 50.6, 40, 4] },
+  { k:'photo', src:'/assets/album/copilot.webp', ar:'9/16', x:3, y:48, w:11, r:4, caption:{es:'copiloto',en:'co-pilot'}, m:[5, 66.2, 40, -3] },
+  { k:'photo', src:'/assets/album/show.webp', ar:'4/3', x:40, y:62, w:22, r:-2, caption:{es:'en primera fila',en:'front row'}, m:[14, 86.0, 68, -2] },
   { k:'photo', src:'/assets/album/room.webp', ar:'3/4', x:18, y:64, w:13, r:3, caption:{es:'en casa',en:'at home'} },
   { k:'photo', src:'/assets/album/gym-crew.webp', ar:'3/4', x:72, y:62, w:13, r:-3, caption:{es:'gym con los parceros',en:'gym with the crew'} },
   { k:'photo', src:'/assets/album/beach-crew.webp', ar:'4/3', x:2, y:80, w:14, r:2, caption:{es:'en la playa',en:'at the beach'} },
-  { k:'sticker', src:'/assets/album/st-hoodie.webp', x:35, y:50, w:9, r:-8 },
-  { k:'sticker', src:'/assets/album/st-gym.webp', x:71, y:48, w:9, r:7 },
-  { k:'sticker', src:'/assets/album/st-dog.webp', x:64, y:80, w:10, r:-6 },
+  { k:'sticker', src:'/assets/album/st-hoodie.webp', x:35, y:50, w:9, r:-8, m:[38, 16.0, 24, -8] },
+  { k:'sticker', src:'/assets/album/st-gym.webp', x:71, y:48, w:9, r:7, m:[38, 47.3, 22, 7] },
+  { k:'sticker', src:'/assets/album/st-dog.webp', x:64, y:80, w:10, r:-6, m:[36, 82.3, 24, -6] },
   { k:'sticker', src:'/assets/album/st-car.webp', x:30, y:85, w:9, r:6 },
   { k:'sticker', src:'/assets/album/st-water.webp', x:87, y:80, w:10, r:6 },
 ];

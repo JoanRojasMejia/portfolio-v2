@@ -1,9 +1,9 @@
 <template>
   <div class="board-scroll">
-    <div ref="board" class="board" :style="{ aspectRatio: aspect }">
+    <div ref="board" class="board" :class="{ mobile }" :style="{ aspectRatio: mobile ? mobileAspect : aspect }">
       <div
-        v-for="(a, i) in items"
-        :key="i"
+        v-for="(a, i) in shown"
+        :key="`${mobile}-${i}`"
         class="piece"
         :style="{ left: pos[i].x + '%', top: pos[i].y + '%', width: a.w + '%', zIndex: pos[i].z, transform: `rotate(${a.r}deg)` }"
         @pointerdown="startDrag($event, i)"
@@ -34,28 +34,48 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import type { AlbumItem } from '../lib/data';
 import { L } from '../lib/i18n';
 import { lang } from '../lib/site';
 
-const props = withDefaults(defineProps<{ items: AlbumItem[]; aspect?: string; maxY?: number }>(), {
-  aspect: '16 / 11',
-  maxY: 90,
-});
+const props = withDefaults(
+  defineProps<{ items: AlbumItem[]; aspect?: string; maxY?: number; mobileAspect?: string }>(),
+  { aspect: '16 / 11', maxY: 90, mobileAspect: undefined },
+);
+
+// En pantallas angostas, si hay mobileAspect, se usa un tablero vertical con las
+// piezas que tienen posición móvil (m); así no hay que desplazar el tablero de lado.
+const mobile = ref(false);
+const shown = computed(() =>
+  mobile.value && props.mobileAspect
+    ? props.items.filter((a) => a.m).map((a) => ({ ...a, x: a.m![0], y: a.m![1], w: a.m![2], r: a.m![3] }))
+    : props.items,
+);
 
 // Los stickers empiezan encima de todo, como pegados sobre las fotos.
-const initial = () => props.items.map((a, i) => ({ x: a.x, y: a.y, z: (a.k === 'sticker' ? props.items.length : 0) + i + 1 }));
+const initial = () => shown.value.map((a, i) => ({ x: a.x, y: a.y, z: (a.k === 'sticker' ? shown.value.length : 0) + i + 1 }));
 const pos = ref(initial());
-let topZ = props.items.length * 2 + 1;
+let topZ = shown.value.length * 2 + 1;
 const inked = ref(-1);
 const board = ref<HTMLElement | null>(null);
 let stopDrag: (() => void) | null = null;
 
 function reset() {
   pos.value = initial();
-  topZ = props.items.length * 2 + 1;
+  topZ = shown.value.length * 2 + 1;
 }
+watch(shown, reset);
+
+let mq: MediaQueryList | undefined;
+const onMq = () => (mobile.value = !!mq?.matches);
+onMounted(() => {
+  if (!props.mobileAspect) return;
+  mq = window.matchMedia('(max-width: 720px)');
+  onMq();
+  mq.addEventListener('change', onMq);
+});
+onBeforeUnmount(() => mq?.removeEventListener('change', onMq));
 defineExpose({ reset });
 
 function startDrag(e: PointerEvent, i: number) {
@@ -71,13 +91,16 @@ function startDrag(e: PointerEvent, i: number) {
     pos.value[i].x = Math.max(-5, Math.min(95, start.x + dx));
     pos.value[i].y = Math.max(-5, Math.min(props.maxY, start.y + dy));
   };
+  // En celular el navegador puede tomar el gesto para hacer scroll (pointercancel).
   const up = () => {
     window.removeEventListener('pointermove', move);
     window.removeEventListener('pointerup', up);
+    window.removeEventListener('pointercancel', up);
     stopDrag = null;
   };
   window.addEventListener('pointermove', move);
   window.addEventListener('pointerup', up);
+  window.addEventListener('pointercancel', up);
   stopDrag = up;
 }
 
@@ -87,6 +110,7 @@ onBeforeUnmount(() => stopDrag?.());
 <style scoped>
 .board-scroll { overflow-x: auto; overflow-y: hidden; }
 .board { position: relative; min-width: 760px; touch-action: none; }
+.board.mobile { min-width: 0; touch-action: pan-y; }
 .piece { position: absolute; cursor: grab; user-select: none; }
 .piece:active { cursor: grabbing; }
 

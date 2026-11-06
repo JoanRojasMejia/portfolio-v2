@@ -10,7 +10,7 @@
     </div>
 
     <!-- Los discos en rotación viven solo en la página del álbum (/album). -->
-    <Collage ref="collage" :items="ALBUM" aspect="16 / 12" :max-y="92" />
+    <Collage ref="collage" :items="ALBUM" aspect="16 / 12" :max-y="92" mobile-aspect="333 / 1640" />
   </section>
 </template>
 
