@@ -2,7 +2,13 @@ import type { Localized } from './i18n';
 
 export const GREET = ['Hola', 'Hello', 'Olá', 'Ciao', 'Bonjour'];
 export const ARTISTS = ['Funk Tribu', 'Andrés Calamaro', 'Feid', 'Yandel', 'Quevedo', 'David Guetta', 'Bad Bunny'];
-export const LINKS = ['Email', 'LinkedIn', 'GitHub', 'Instagram'];
+// Contacto del footer. Un enlace sin href no se muestra (así no queda un enlace muerto).
+export const LINKS: { label: string; href: string }[] = [
+  { label: 'Email', href: 'mailto:sebas.rojas.mejia@gmail.com' },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/joan-rojas-mejia/' },
+  { label: 'GitHub', href: 'https://github.com/JoanRojasMejia' },
+  { label: 'Instagram', href: 'https://www.instagram.com/joan_rojas_16/' },
+];
 // Playground: experimentos que viven en este mismo sitio. "live" se prueban ahí
 // mismo; "clip" es un video corto porque necesitan otra app para correr.
 export const EXPERIMENTS: { id: 'heart' | 'build' | 'wave' | 'ink' | 'sound' | 'tokens'; kind: 'live' | 'clip'; tag: string; title: Localized; hint: Localized }[] = [

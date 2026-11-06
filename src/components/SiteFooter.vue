@@ -4,7 +4,12 @@
       <div class="contact">
         <h2 class="serif">{{ t.talk }}</h2>
         <div class="links">
-          <a v-for="l in LINKS" :key="l" href="#top"><span>{{ l }}</span><span class="arrow">↗</span></a>
+          <a
+            v-for="l in LINKS.filter((x) => x.href)"
+            :key="l.label"
+            :href="l.href"
+            v-bind="l.href.startsWith('mailto:') ? {} : { target: '_blank', rel: 'noopener noreferrer' }"
+          ><span>{{ l.label }}</span><span class="arrow">↗</span></a>
         </div>
       </div>
       <div class="ticket">
