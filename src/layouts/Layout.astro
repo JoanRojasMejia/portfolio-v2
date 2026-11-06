@@ -11,7 +11,7 @@ interface Props {
 const { title, description = 'Product Engineer en Global66. Diseño y construyo con Astro y Vue.' } = Astro.props;
 ---
 <!doctype html>
-<html lang="es">
+<html lang="es" data-theme="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -25,11 +25,12 @@ const { title, description = 'Product Engineer en Global66. Diseño y construyo 
       rel="stylesheet"
     />
     <script is:inline>
+      // Oscuro por defecto; si el visitante ya eligió un tema, se respeta.
       try {
         var th = localStorage.getItem('jr_theme');
-        document.documentElement.dataset.theme = th === 'dark' || th === 'light' ? th : 'light';
+        document.documentElement.dataset.theme = th === 'dark' || th === 'light' ? th : 'dark';
       } catch (e) {
-        document.documentElement.dataset.theme = 'light';
+        document.documentElement.dataset.theme = 'dark';
       }
     </script>
   </head>
