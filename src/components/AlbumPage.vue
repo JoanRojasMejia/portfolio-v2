@@ -16,7 +16,7 @@
     <section id="collage" class="sheet collage-sec" data-screen-label="Álbum · collage">
       <div class="collage-head">
         <span class="mono label">05.1 · COLLAGE — {{ pt.dragHint }}</span>
-        <button class="pill mono" @click="collage?.reset()">↺ {{ t.reset }}</button>
+        <button type="button" class="pill" @click="collage?.reset()"><span class="ico" aria-hidden="true">↺</span>{{ t.reset }}</button>
       </div>
       <Collage ref="collage" :items="ALBUM_PAGE" aspect="16 / 18" :max-y="92" />
     </section>
@@ -92,15 +92,6 @@ h1 { margin: 0; font-size: clamp(64px, 10vw, 140px); line-height: .88; letter-sp
 .chips a:hover { border-color: var(--fg); color: var(--fg); }
 
 .collage-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; }
-.pill {
-  font-size: 12px;
-  padding: 8px 14px;
-  border: 1px solid var(--rule);
-  border-radius: 999px;
-  background: var(--card);
-  color: var(--fg);
-  cursor: pointer;
-}
 
 .rule-head { display: flex; align-items: center; gap: 14px; font-size: 12px; letter-spacing: .1em; color: var(--muted); margin-bottom: 20px; }
 .line { flex: 1; height: 1px; background: var(--rule); display: block; }

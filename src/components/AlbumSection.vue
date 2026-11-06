@@ -3,8 +3,10 @@
     <SheetLabel no="05" :label="t.albumUp" />
     <div class="head">
       <p class="lead-serif">{{ t.albumLine }}</p>
-      <a href="/album" class="pill solid mono">{{ t.fullAlbum }} →</a>
-      <button class="pill mono" @click="collage?.reset()">↺ {{ t.reset }}</button>
+      <div class="actions">
+        <button type="button" class="pill" @click="collage?.reset()"><span class="ico" aria-hidden="true">↺</span>{{ t.reset }}</button>
+        <a href="/album" class="pill solid">{{ t.fullAlbum }}<span class="arrow" aria-hidden="true">→</span></a>
+      </div>
     </div>
 
     <!-- Los discos en rotación viven solo en la página del álbum (/album). -->
@@ -32,4 +34,5 @@ const collage = ref<InstanceType<typeof Collage> | null>(null);
   margin-bottom: 12px;
 }
 .head .lead-serif { max-width: 20em; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
 </style>

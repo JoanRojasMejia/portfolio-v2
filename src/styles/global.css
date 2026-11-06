@@ -159,3 +159,34 @@ button { font: inherit; }
   .jr-waves:hover .pose-up,
   .jr-waves:focus-visible .pose-up { opacity: 1; }
 }
+
+/* Botón en forma de píldora (álbum): .pill con borde; .pill.solid relleno con la tinta.
+   Se usa como enlace o como botón, así que reinicia los estilos nativos del <button>. */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--fg);
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: .06em;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color .2s, background .2s, color .2s;
+}
+.pill:hover { border-color: var(--fg); color: var(--fg); }
+.pill:focus-visible { outline: 2px solid var(--fg); outline-offset: 3px; }
+.pill.solid { background: var(--fg); border-color: var(--fg); color: var(--bg); }
+.pill.solid:hover { background: transparent; color: var(--fg); }
+.pill .ico { display: inline-block; transition: transform .35s ease; }
+.pill:hover .ico { transform: rotate(-180deg); }
+.pill:hover .arrow { transform: translateX(3px); }
+.pill .arrow { display: inline-block; transition: transform .2s; }
+@media (prefers-reduced-motion: reduce) {
+  .pill .ico, .pill .arrow { transition: none; }
+}
