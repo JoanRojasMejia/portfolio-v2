@@ -19,7 +19,7 @@ pnpm build             # genera dist/ (13 páginas)
 
 ## Dónde vive cada cosa
 
-- `src/pages/`: rutas (`index`, `caso/[id]`, `album`, `colophon`, `sonidos`).
+- `src/pages/`: rutas (`index`, `caso/[id]`, `album`, `colophon`, `sonidos`) y `api/now-playing` (canción de Last.fm en vivo; NowPlaying.vue la pide al cargar y cada 30 s).
 - `src/components/`: secciones de la portada (`*Section.vue`, orquestadas por `Portfolio.vue`) y páginas (`CasePage.vue`, `AlbumPage.vue`, `ColophonPage.vue`).
 - `src/lib/data.ts`: proyectos, experimentos y bandas sonoras que se muestran en tarjetas y fichas.
 - `src/lib/work-content.ts`: relatos completos de cada proyecto (fuente de los resúmenes).
@@ -37,4 +37,4 @@ pnpm build             # genera dist/ (13 páginas)
 - Todo texto visible va en español e inglés en `src/lib/i18n.ts`.
 - Los comentarios del código se escriben en español.
 - Los colores son tokens en `:root` de `src/styles/global.css`, con su versión en `:root[data-theme="dark"]`. El tema se cambia con `setTheme` en `src/lib/site.ts`.
-- Las API keys se leen solo en build time, en el frontmatter de Astro (`import.meta.env` en `src/lib/lastfm.ts`, `src/lib/contributions.ts` y `src/lib/hevy.ts`). Al cliente solo llegan los datos ya resueltos, nunca la clave.
+- Las API keys se leen solo en build time, en el frontmatter de Astro (`import.meta.env` en `src/lib/lastfm.ts`, `src/lib/contributions.ts` y `src/lib/hevy.ts`). Al cliente solo llegan los datos ya resueltos, nunca la clave. La única excepción es `src/pages/api/now-playing.ts` (`prerender = false`), que corre como función de Vercel en cada visita para que la canción esté al día; también lee la clave solo en el servidor. Por esa ruta el proyecto usa el adapter `@astrojs/vercel`; el resto sigue siendo estático.

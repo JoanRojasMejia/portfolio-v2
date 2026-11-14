@@ -35,26 +35,66 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, shallowRef } from 'vue';
 import type { RecentTrack } from '../lib/lastfm';
 import { t } from '../lib/site';
 
-// Pastilla "Últimamente escuchando" con la última canción de Last.fm. Los datos
-// llegan ya resueltos desde el frontmatter de Astro (la API key no pasa por aquí).
-// Si iTunes tiene preview, el disco lo reproduce (30 s); si no, play/pausa solo anima.
+// Pastilla "Últimamente escuchando" con la última canción de Last.fm. Arranca con la
+// canción del build (así hay algo desde el primer pintado) y luego la pide a
+// /api/now-playing al cargar y cada POLL_MS mientras la pestaña está visible. La API
+// key nunca pasa por aquí. Si iTunes tiene preview, el disco lo reproduce (30 s);
+// si no, play/pausa solo anima.
 const VOLUME = 0.35; // el sonido no debe sorprender a nadie
 const FADE_IN_MS = 600;
 const FADE_OUT_MS = 250;
+const POLL_MS = 30_000;
 
 const props = defineProps<{ track?: RecentTrack | null }>();
 
+const track = shallowRef<RecentTrack | null>(props.track ?? null);
 const audio = ref<HTMLAudioElement | null>(null);
 const audioFailed = ref(false);
-const hasAudio = computed(() => !!props.track?.preview && !audioFailed.value);
+const hasAudio = computed(() => !!track.value?.preview && !audioFailed.value);
 // Con audio empieza en pausa: solo suena si el visitante hace clic.
-const playing = ref(!!props.track && !props.track.preview);
+const playing = ref(!!track.value && !track.value.preview);
 const broken = ref(false); // la carátula no cargó → disco de respaldo
-const cover = computed(() => (broken.value ? null : props.track?.image ?? null));
+const cover = computed(() => (broken.value ? null : track.value?.image ?? null));
+
+const same = (a: RecentTrack | null, b: RecentTrack | null) =>
+  a?.name === b?.name && a?.artist === b?.artist && a?.nowPlaying === b?.nowPlaying;
+
+// Trae la canción actual. Si el visitante está oyendo el preview, espera a que
+// termine para no cortarle el audio; si la API falla, se queda la que había.
+let pollTimer = 0;
+let lastAsk = 0; // evita pedirla dos veces seguidas (al montar y al volver a la pestaña)
+const refresh = async () => {
+  if (document.hidden || (playing.value && hasAudio.value)) return;
+  if (Date.now() - lastAsk < 5_000) return;
+  lastAsk = Date.now();
+  try {
+    const res = await fetch('/api/now-playing', { headers: { Accept: 'application/json' } });
+    if (!res.ok) return;
+    const next: RecentTrack | null = (await res.json()).track ?? null;
+    if (!next || same(next, track.value)) return;
+    const changed = next.name !== track.value?.name || next.artist !== track.value?.artist;
+    track.value = next;
+    if (!changed) return; // solo cambió "sonando ahora" ↔ "última escuchada"
+    audioFailed.value = false;
+    broken.value = false;
+    playing.value = !next.preview;
+  } catch {
+    // Sin red o sin función (p. ej. `astro preview`): se queda la canción del build.
+  }
+};
+const onVisible = () => {
+  if (!document.hidden) refresh();
+};
+
+onMounted(() => {
+  refresh();
+  pollTimer = window.setInterval(refresh, POLL_MS);
+  document.addEventListener('visibilitychange', onVisible);
+});
 
 let fadeTimer = 0;
 const fade = (el: HTMLAudioElement, to: number, ms: number, done?: () => void) => {
@@ -97,6 +137,8 @@ const onEnded = () => {
 
 onBeforeUnmount(() => {
   clearInterval(fadeTimer);
+  clearInterval(pollTimer);
+  document.removeEventListener('visibilitychange', onVisible);
   audio.value?.pause();
 });
 </script>

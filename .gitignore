@@ -14,3 +14,6 @@ tools/handwriting-font/out/
 # Sistema y herramientas locales
 .DS_Store
 .claude/
+
+# Salida local del adapter de Vercel
+.vercel/

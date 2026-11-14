@@ -1,7 +1,7 @@
-// Última canción escuchada en Last.fm. Solo se usa en el frontmatter de Astro
-// (build time), así la API key nunca llega al navegador: al cliente solo pasan
-// los datos de la canción. El preview de audio y la carátula de respaldo salen
-// de iTunes (ver itunes.ts).
+// Última canción escuchada en Last.fm. Se usa solo en el servidor: en el frontmatter
+// de Astro (build) y en la función /api/now-playing (en cada visita), así la API key
+// nunca llega al navegador: al cliente solo pasan los datos de la canción. El preview
+// de audio y la carátula de respaldo salen de iTunes (ver itunes.ts).
 
 import { findPreview } from './itunes';
 

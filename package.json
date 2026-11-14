@@ -11,6 +11,7 @@
     "export:codecommit": "node scripts/export-codecommit.mjs"
   },
   "dependencies": {
+    "@astrojs/vercel": "^11.0.21",
     "@astrojs/vue": "^7.0.3",
     "astro": "^7.3.8",
     "vue": "^3.5.44"
