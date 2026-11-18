@@ -49,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, onMounted, shallowRef } from 'vue';
 import SheetLabel from './SheetLabel.vue';
 import ContributionGraph from './ContributionGraph.vue';
 import type { CalendarDay } from '../lib/calendar';
@@ -58,7 +58,22 @@ import { isEs, nowArtist, t } from '../lib/site';
 
 const props = withDefaults(defineProps<{ gym?: GymCalendar | null }>(), { gym: null });
 
-const sessionsOf = (d: CalendarDay): GymSession[] => props.gym?.sessions[d.date] ?? [];
+// Arranca con el calendario del build (así se pinta de una vez) y al cargar lo pide a
+// /api/gym para traer los entrenos registrados después del último deploy. Si la
+// función falla, se queda el del build.
+const gym = shallowRef<GymCalendar | null>(props.gym);
+onMounted(async () => {
+  try {
+    const res = await fetch('/api/gym', { headers: { Accept: 'application/json' } });
+    if (!res.ok) return;
+    const fresh: GymCalendar | null = (await res.json()).gym ?? null;
+    if (fresh) gym.value = fresh;
+  } catch {
+    // Sin red o sin función (p. ej. `astro preview`): se queda el calendario del build.
+  }
+});
+
+const sessionsOf = (d: CalendarDay): GymSession[] => gym.value?.sessions[d.date] ?? [];
 
 // Palabras de relleno al inicio del título que no distinguen una rutina de otra
 // ("Día de pecho", "Day of legs").

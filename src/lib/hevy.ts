@@ -1,6 +1,7 @@
-// Días de gimnasio desde Hevy (API pública, solo con Hevy Pro). Solo se usa en el
-// frontmatter de Astro (build time), así la API key nunca llega al navegador: al
-// cliente solo pasan, por día, el nombre de cada entreno y cuánto duró.
+// Días de gimnasio desde Hevy (API pública, solo con Hevy Pro). Se usa solo en el
+// servidor: en el frontmatter de Astro (build) y en la función /api/gym (en cada
+// visita), así la API key nunca llega al navegador: al cliente solo pasan, por día,
+// el nombre de cada entreno y cuánto duró.
 // Docs: https://api.hevyapp.com/docs/
 
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
@@ -26,7 +27,9 @@ const PAGE_SIZE = 10; // máximo que permite la API
 const MAX_PAGES = 100; // tope de seguridad: 1000 entrenos
 // La API limita las solicitudes (responde 429) y el dev server renderiza la portada en
 // cada recarga, así que el resultado se guarda en disco: dentro de una hora se reutiliza
-// sin llamar a Hevy y, si la API falla, se usa aunque sea más viejo.
+// sin llamar a Hevy y, si la API falla, se usa aunque sea más viejo. En la función de
+// Vercel el disco es de solo lectura: ahí no hay caché en disco (writeCache falla en
+// silencio) y la que cuenta es la de la CDN (ver src/pages/api/gym.ts).
 const CACHE_FILE = join(process.cwd(), 'node_modules', '.cache', 'hevy.json');
 const CACHE_TTL_MS = 60 * 60 * 1000;
 
